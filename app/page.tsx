@@ -3,6 +3,9 @@ import CollectionView from "@/components/CollectionView";
 import { getRecords } from "@/lib/records";
 
 export default async function HomePage() {
+  const configured =
+    !!process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const records = await getRecords();
 
   const rated = records.filter((r) => r.rating != null);
@@ -15,6 +18,14 @@ export default async function HomePage() {
     <>
       <Nav />
       <main className="mx-auto max-w-6xl px-6 py-12">
+        {!configured && (
+          <div className="mb-8 rounded-lg border border-[#b34a3a]/40 bg-[#b34a3a]/5 px-5 py-4 text-sm text-[#b34a3a]">
+            <strong>Supabase가 설정되지 않았습니다.</strong> 배포 환경에{" "}
+            <code className="font-mono">NEXT_PUBLIC_SUPABASE_URL</code> 와{" "}
+            <code className="font-mono">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>{" "}
+            환경변수를 추가한 뒤 재배포하세요.
+          </div>
+        )}
         <section className="mb-16 border-b-2 border-[#dcd8d0] pb-14">
           <p className="text-sm uppercase tracking-[0.2em] text-muted">
             Modern Archive
