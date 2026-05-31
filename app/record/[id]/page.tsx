@@ -9,6 +9,9 @@ import { formatKST } from "@/lib/date";
 import { formatKRW } from "@/lib/format";
 import { getRecord } from "@/lib/records";
 
+// Always render at request time using runtime env vars.
+export const dynamic = "force-dynamic";
+
 export default async function RecordPage({
   params,
 }: {

@@ -2,6 +2,10 @@ import Nav from "@/components/Nav";
 import CollectionView from "@/components/CollectionView";
 import { getRecords } from "@/lib/records";
 
+// Always render at request time so data is fetched with runtime env vars,
+// never baked into a build-time static prerender.
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const configured =
     !!process.env.NEXT_PUBLIC_SUPABASE_URL &&

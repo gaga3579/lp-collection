@@ -5,6 +5,9 @@ import StarRating from "@/components/StarRating";
 import { GENRES, GENRE_COLORS, GENRE_LABELS, type Genre } from "@/lib/types";
 import { getRecords } from "@/lib/records";
 
+// Always render at request time using runtime env vars.
+export const dynamic = "force-dynamic";
+
 export default async function StatsPage() {
   const records = await getRecords();
 

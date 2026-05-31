@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import type { Record } from "@/lib/types";
 
 /**
@@ -6,7 +6,7 @@ import type { Record } from "@/lib/types";
  * configured or the query fails, so public pages always render.
  */
 export async function getRecords(): Promise<Record[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   if (!supabase) return [];
 
   const { data, error } = await supabase
@@ -24,7 +24,7 @@ export async function getRecords(): Promise<Record[]> {
 
 /** Fetch a single record by id, or `null` if missing / unconfigured. */
 export async function getRecord(id: string): Promise<Record | null> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   if (!supabase) return null;
 
   const { data, error } = await supabase
