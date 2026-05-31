@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Vinyl Archive
 
-## Getting Started
+A personal LP vinyl record collection website — a "Modern Archive" editorial design built with **Next.js 16 (App Router)**, **Tailwind CSS v4**, **TypeScript**, and **Supabase**.
 
-First, run the development server:
+## Features
+
+- **Public collection** (`/`) — hero stats, real-time search, genre filter chips, sort (recently added / year / rating / artist), responsive album grid (4 cols desktop / 2 mobile), and a bottom stats panel.
+- **Record detail** (`/record/[id]`) — large cover, full metadata (year, genre, rating, condition, price, purchase date, notes).
+- **Admin** (`/admin`) — Google sign-in, owner-only. Add/edit/delete records with a **Spotify lookup** that auto-fills cover art, year, artist, and title.
+- **Stats** (`/stats`) — genre bar chart, records-by-decade chart, and a top-rated list.
+- **Wishlist** — visitors heart records; stored in `localStorage`.
+
+## Setup
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Configure environment
+
+Copy the example file and fill in your keys:
+
+```bash
+cp .env.local.example .env.local
+```
+
+| Variable | Where to get it |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project Settings → API |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Project Settings → API |
+| `SPOTIFY_CLIENT_ID` | [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) |
+| `SPOTIFY_CLIENT_SECRET` | Spotify Developer Dashboard |
+| `NEXT_PUBLIC_OWNER_EMAIL` | The Google account email allowed into `/admin` |
+
+> The app runs without these set — pages render with empty data and the admin/Spotify
+> tools show a friendly "not configured" notice — so you can develop incrementally.
+
+### 3. Create the database
+
+In the Supabase SQL editor, run [`supabase/schema.sql`](supabase/schema.sql). It creates the
+`records` table and Row Level Security policies (public read; owner-only writes). Replace
+`OWNER_EMAIL_HERE` in that file with your owner email before running.
+
+### 4. Enable Google auth
+
+In Supabase → Authentication → Providers, enable **Google** and add your OAuth credentials.
+Add your site URL to the allowed redirect URLs.
+
+### 5. Run
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Architecture notes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project targets **Next.js 16**, which differs from older versions:
 
-## Learn More
+- Middleware is now [`proxy.ts`](proxy.ts) — used here to refresh Supabase auth sessions.
+- Route `params` / `searchParams` are **Promises** and must be awaited.
+- Tailwind v4 is configured purely in CSS via `@theme` in [`app/globals.css`](app/globals.css).
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Data access lives in [`lib/records.ts`](lib/records.ts); Supabase clients are split into
+browser ([`lib/supabase/client.ts`](lib/supabase/client.ts)) and server
+([`lib/supabase/server.ts`](lib/supabase/server.ts)) variants.
