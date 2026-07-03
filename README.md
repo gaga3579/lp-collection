@@ -40,8 +40,10 @@ cp .env.local.example .env.local
 ### 3. Create the database
 
 In the Supabase SQL editor, run [`supabase/schema.sql`](supabase/schema.sql). It creates the
-`records` table and Row Level Security policies (public read; owner-only writes). Replace
-`OWNER_EMAIL_HERE` in that file with your owner email before running.
+`records` table and Row Level Security policies (public read; owner-only writes). The owner
+email is hardcoded as `hijun2952@gmail.com` in the three write policies (insert/update/delete)
+near the bottom of that file — **replace it with your own Google account email before running**,
+otherwise writes stay locked to the original owner.
 
 ### 4. Enable Google auth
 
@@ -64,6 +66,11 @@ This project targets **Next.js 16**, which differs from older versions:
 - Route `params` / `searchParams` are **Promises** and must be awaited.
 - Tailwind v4 is configured purely in CSS via `@theme` in [`app/globals.css`](app/globals.css).
 
-Data access lives in [`lib/records.ts`](lib/records.ts); Supabase clients are split into
-browser ([`lib/supabase/client.ts`](lib/supabase/client.ts)) and server
-([`lib/supabase/server.ts`](lib/supabase/server.ts)) variants.
+Data access lives in [`lib/records.ts`](lib/records.ts). Supabase clients are split three ways:
+a browser client ([`lib/supabase/client.ts`](lib/supabase/client.ts)) for auth and admin
+mutations, a cookie-based server client ([`lib/supabase/server.ts`](lib/supabase/server.ts)) for
+SSR auth, and a cookie-free public read client
+([`lib/supabase/public.ts`](lib/supabase/public.ts)) — the last is what `lib/records.ts` uses for
+the public collection, detail, and stats pages. Reads from `numeric` columns (e.g.
+`purchase_price`) arrive as strings over the wire, so `lib/records.ts` coerces them to numbers on
+the way out.

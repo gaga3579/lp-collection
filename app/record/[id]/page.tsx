@@ -39,7 +39,7 @@ export default async function RecordPage({
         </Link>
 
         <div className="mt-8 grid gap-10 md:grid-cols-2">
-          <div className="relative overflow-hidden rounded-lg border border-line bg-card">
+          <div className="relative self-start overflow-hidden rounded-[2px] shadow-cover-lg">
             <div className="aspect-square">
               {record.cover_url ? (
                 // eslint-disable-next-line @next/next/no-img-element -- arbitrary external album-art hosts
@@ -91,7 +91,10 @@ export default async function RecordPage({
                 label="Purchase date"
                 value={record.purchase_date ?? "—"}
               />
-              <Field label="등록일시 (KST)" value={formatKST(record.created_at)} />
+              <Field
+                label={<span lang="ko">등록일시 (KST)</span>}
+                value={formatKST(record.created_at)}
+              />
             </dl>
 
             {record.notes && (
@@ -113,7 +116,7 @@ function Field({
   label,
   value,
 }: {
-  label: string;
+  label: React.ReactNode;
   value: string | number;
 }) {
   return (

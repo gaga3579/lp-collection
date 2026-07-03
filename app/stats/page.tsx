@@ -89,10 +89,12 @@ export default async function StatsPage() {
                       className="flex flex-1 flex-col items-center gap-2"
                     >
                       <span className="text-sm text-muted">{count}</span>
+                      {/* Pixel height: a % here resolves against an auto-height
+                          flex column and collapses to the 4px floor. */}
                       <div
                         className="w-full rounded-t bg-ink"
                         style={{
-                          height: `${(count / maxDecade) * 100}%`,
+                          height: (count / maxDecade) * 140,
                           minHeight: 4,
                         }}
                       />

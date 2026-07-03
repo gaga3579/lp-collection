@@ -23,14 +23,14 @@ export default function WishlistButton({
       }}
       aria-pressed={active}
       aria-label={active ? "Remove from wishlist" : "Add to wishlist"}
-      className="grid place-items-center rounded-full bg-card/90 p-2 shadow-sm ring-1 ring-line backdrop-blur transition hover:scale-105"
+      className="grid place-items-center rounded-full bg-canvas/90 p-2.5 backdrop-blur transition hover:scale-105"
     >
       <svg
         width={size}
         height={size}
         viewBox="0 0 24 24"
         fill={active ? "#b34a3a" : "none"}
-        stroke={active ? "#b34a3a" : "#1a1a1a"}
+        stroke={active ? "#b34a3a" : "#141412"}
         strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"

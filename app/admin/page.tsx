@@ -37,11 +37,15 @@ export default function AdminPage() {
     // `supabase`), so there's nothing to set here.
     if (!supabase) return;
 
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-      setLoading(false);
-      if (data.user?.email === OWNER_EMAIL) loadRecords();
-    });
+    // getUser() only settles the auth UI state. The initial data load is owned
+    // by onAuthStateChange below, which fires an INITIAL_SESSION event with the
+    // current session on subscribe — so loadRecords() runs exactly once on the
+    // first owner load instead of twice. `.finally` guarantees the loading
+    // spinner clears even if getUser() rejects (e.g. a network blip).
+    supabase.auth
+      .getUser()
+      .then(({ data }) => setUser(data.user))
+      .finally(() => setLoading(false));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       setUser(session?.user ?? null);
       if (session?.user?.email === OWNER_EMAIL) loadRecords();
@@ -108,7 +112,9 @@ export default function AdminPage() {
         )}
 
         {supabase && loading && (
-          <p className="mt-8 text-muted">Loading…</p>
+          <p role="status" className="mt-8 text-muted">
+            Loading…
+          </p>
         )}
 
         {supabase && !loading && !user && (
@@ -254,6 +260,7 @@ function Notice({
 }) {
   return (
     <div
+      role={tone === "error" ? "alert" : undefined}
       className={`mt-8 rounded-lg border px-5 py-4 text-sm ${
         tone === "error"
           ? "border-[#b34a3a]/40 bg-[#b34a3a]/5 text-[#b34a3a]"

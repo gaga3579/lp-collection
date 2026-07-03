@@ -22,8 +22,8 @@ export default function StarRating({
           width={size}
           height={size}
           viewBox="0 0 24 24"
-          fill={n <= rating ? "#1a1a1a" : "none"}
-          stroke="#1a1a1a"
+          fill={n <= rating ? "#141412" : "none"}
+          stroke="#141412"
           strokeWidth="1.5"
           className={n <= rating ? "opacity-100" : "opacity-25"}
         >

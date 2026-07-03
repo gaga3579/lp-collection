@@ -2,6 +2,21 @@ import { createPublicClient } from "@/lib/supabase/public";
 import type { Record } from "@/lib/types";
 
 /**
+ * Postgres `numeric` columns are serialized as JSON *strings* by PostgREST to
+ * preserve arbitrary precision, so `purchase_price` arrives as e.g. "12500" at
+ * runtime even though the type declares `number | null`. Coerce it once here so
+ * every consumer gets a real number — otherwise `sum + price` silently does
+ * string concatenation and totals come out as garbage like "0125003400".
+ */
+function normalize(row: Record): Record {
+  return {
+    ...row,
+    purchase_price:
+      row.purchase_price == null ? null : Number(row.purchase_price),
+  };
+}
+
+/**
  * Fetch every record, newest first. Returns an empty array when Supabase isn't
  * configured or the query fails, so public pages always render.
  */
@@ -19,7 +34,7 @@ export async function getRecords(): Promise<Record[]> {
     return [];
   }
 
-  return (data ?? []) as Record[];
+  return ((data ?? []) as Record[]).map(normalize);
 }
 
 /** Fetch a single record by id, or `null` if missing / unconfigured. */
@@ -34,5 +49,5 @@ export async function getRecord(id: string): Promise<Record | null> {
     .single();
 
   if (error) return null;
-  return data as Record;
+  return normalize(data as Record);
 }

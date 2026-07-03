@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import {
   CONDITIONS,
   GENRES,
@@ -56,6 +56,9 @@ export default function RecordForm({
   const [results, setResults] = useState<SpotifyResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const spotifyId = useId();
+  const dateId = useId();
+  const notesId = useId();
 
   function set<K extends keyof RecordInput>(key: K, value: RecordInput[K]) {
     setValues((v) => ({ ...v, [key]: value }));
@@ -78,6 +81,7 @@ export default function RecordForm({
       }
     } catch {
       setSearchError("Could not reach the search service.");
+      setResults([]);
     } finally {
       setSearching(false);
     }
@@ -105,11 +109,15 @@ export default function RecordForm({
     >
       {/* Spotify search */}
       <div className="rounded-lg border border-line bg-canvas p-4">
-        <label className="text-xs uppercase tracking-wide text-muted">
+        <label
+          htmlFor={spotifyId}
+          className="text-xs uppercase tracking-wide text-muted"
+        >
           Spotify lookup
         </label>
         <div className="mt-2 flex gap-2">
           <input
+            id={spotifyId}
             value={spotifyQuery}
             onChange={(e) => setSpotifyQuery(e.target.value)}
             onKeyDown={(e) => {
@@ -131,7 +139,9 @@ export default function RecordForm({
           </button>
         </div>
         {searchError && (
-          <p className="mt-2 text-sm text-[#b34a3a]">{searchError}</p>
+          <p role="alert" className="mt-2 text-sm text-[#b34a3a]">
+            {searchError}
+          </p>
         )}
         {results.length > 0 && (
           <ul className="mt-3 max-h-60 space-y-1 overflow-auto">
@@ -216,10 +226,14 @@ export default function RecordForm({
           onChange={(v) => set("purchase_price", v)}
         />
         <div>
-          <label className="text-xs uppercase tracking-wide text-muted">
+          <label
+            htmlFor={dateId}
+            className="text-xs uppercase tracking-wide text-muted"
+          >
             Purchase date
           </label>
           <input
+            id={dateId}
             type="date"
             value={values.purchase_date ?? ""}
             onChange={(e) => set("purchase_date", e.target.value || null)}
@@ -235,10 +249,14 @@ export default function RecordForm({
       />
 
       <div>
-        <label className="text-xs uppercase tracking-wide text-muted">
+        <label
+          htmlFor={notesId}
+          className="text-xs uppercase tracking-wide text-muted"
+        >
           Notes
         </label>
         <textarea
+          id={notesId}
           value={values.notes ?? ""}
           onChange={(e) => set("notes", e.target.value || null)}
           rows={3}
@@ -279,12 +297,17 @@ function TextField({
   onChange: (v: string) => void;
   required?: boolean;
 }) {
+  const id = useId();
   return (
     <div>
-      <label className="text-xs uppercase tracking-wide text-muted">
+      <label
+        htmlFor={id}
+        className="text-xs uppercase tracking-wide text-muted"
+      >
         {label}
       </label>
       <input
+        id={id}
         value={value}
         required={required}
         onChange={(e) => onChange(e.target.value)}
@@ -305,12 +328,17 @@ function NumberField({
   onChange: (v: number | null) => void;
   step?: string;
 }) {
+  const id = useId();
   return (
     <div>
-      <label className="text-xs uppercase tracking-wide text-muted">
+      <label
+        htmlFor={id}
+        className="text-xs uppercase tracking-wide text-muted"
+      >
         {label}
       </label>
       <input
+        id={id}
         type="number"
         step={step}
         value={value ?? ""}
@@ -334,12 +362,17 @@ function SelectField({
   options: { value: string; label: string }[];
   onChange: (v: string) => void;
 }) {
+  const id = useId();
   return (
     <div>
-      <label className="text-xs uppercase tracking-wide text-muted">
+      <label
+        htmlFor={id}
+        className="text-xs uppercase tracking-wide text-muted"
+      >
         {label}
       </label>
       <select
+        id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="mt-1 w-full rounded-md border border-line bg-card px-3 py-2 text-sm capitalize outline-none focus:border-ink"

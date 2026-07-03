@@ -1,18 +1,29 @@
 @import "tailwindcss";
 
 /*
-  Modern Archive palette — warm off-white canvas, pure-white cards,
-  subtle warm borders, warm-black ink. Serif for display, Geist for body.
+  Modern Gallery palette — near-white canvas, warm-black ink, greyed-warm
+  muted text, hairline borders. Covers float on layered soft shadows.
+  Instrument Sans for body/UI, Instrument Serif for display accents.
 */
 @theme {
-  --color-canvas: #fafaf8;
+  --color-canvas: #fcfcfb;
   --color-card: #ffffff;
-  --color-ink: #1a1a1a;
-  --color-muted: #6b665e;
-  --color-line: #ece9e3;
+  --color-ink: #141412;
+  --color-muted: #8c8a84;
+  --color-line: #eceae4;
 
   --font-serif: var(--font-instrument-serif), Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* Album-cover shadows: resting + deepened hover pair, grid and hero (lg) sizes. */
+  --shadow-cover: 0 24px 55px -26px rgba(20, 20, 18, 0.35),
+    0 6px 18px -10px rgba(20, 20, 18, 0.15);
+  --shadow-cover-hover: 0 32px 65px -24px rgba(20, 20, 18, 0.45),
+    0 10px 24px -12px rgba(20, 20, 18, 0.2);
+  --shadow-cover-lg: 0 32px 70px -28px rgba(20, 20, 18, 0.38),
+    0 8px 22px -12px rgba(20, 20, 18, 0.18);
+  --shadow-cover-lg-hover: 0 44px 90px -30px rgba(20, 20, 18, 0.48),
+    0 12px 28px -14px rgba(20, 20, 18, 0.22);
 }
 
 html {
@@ -31,4 +42,22 @@ body {
   font-family: var(--font-serif);
   font-weight: 400;
   letter-spacing: -0.01em;
+}
+
+/*
+  Shared page gutter — every section aligns to it. 120px on the 1440px design
+  frame, scaling down for tablet/mobile (the handoff was desktop-only).
+*/
+.gutter {
+  padding-inline: 1.5rem;
+}
+@media (min-width: 48rem) {
+  .gutter {
+    padding-inline: 3rem;
+  }
+}
+@media (min-width: 80rem) {
+  .gutter {
+    padding-inline: 7.5rem;
+  }
 }
