@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import {
   GENRES,
   GENRE_LABELS,
@@ -9,12 +10,12 @@ import {
   type Record,
   type SortKey,
 } from "@/lib/types";
-import { useWishlist } from "@/lib/useWishlist";
 import { formatKRW } from "@/lib/format";
 import { collectionStats } from "@/lib/stats";
 import { useCountUp } from "@/lib/useCountUp";
 import AlbumCard from "./AlbumCard";
 import GenreDot from "./GenreDot";
+import HeroStats from "./HeroStats";
 
 type Filter = Genre | "all";
 
@@ -26,11 +27,41 @@ const LEAD_EYEBROWS: { [K in SortKey]: string } = {
   artist: "First in the bins",
 };
 
+const NUMBER_WORDS = [
+  "no",
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+  "nine",
+  "ten",
+  "eleven",
+  "twelve",
+  "thirteen",
+  "fourteen",
+  "fifteen",
+  "sixteen",
+  "seventeen",
+  "eighteen",
+  "nineteen",
+  "twenty",
+];
+
+// "A living gallery of *twelve records.*" — the count is spelled out while it
+// still reads like prose, then falls back to numerals.
+function countPhrase(n: number): string {
+  const word = n >= 0 && n < NUMBER_WORDS.length ? NUMBER_WORDS[n] : String(n);
+  return `${word} ${n === 1 ? "record" : "records"}`;
+}
+
 export default function CollectionView({ records }: { records: Record[] }) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<SortKey>("recent");
-  const { count: wishlistCount } = useWishlist();
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -84,82 +115,93 @@ export default function CollectionView({ records }: { records: Record[] }) {
 
   return (
     <section>
-      {/* Filter / search / sort bar */}
-      <div className="gutter mt-16 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-5">
-        <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2.5 text-[13.5px]">
-          <button
-            type="button"
-            onClick={() => setFilter("all")}
-            className={pillClass(filter === "all")}
-          >
-            All {stats.total}
-          </button>
-          {stats.byGenre.map((g) => (
-            <button
-              key={g.genre}
-              type="button"
-              onClick={() => setFilter(g.genre)}
-              className={pillClass(filter === g.genre)}
-            >
-              {GENRE_LABELS[g.genre]} {g.count}
-            </button>
-          ))}
-        </div>
+      {/* Hero headline — the one uppercase eyebrow on the page lives here. */}
+      <div className="gutter pt-12 lg:pt-16">
+        <p className="text-[11px] uppercase tracking-[0.22em] text-muted">
+          My Vinyl Collection ·{" "}
+          <span lang="ko">내가 모은 것들, 내가 들은 것들</span>
+        </p>
+        <h1 className="mt-6 max-w-[900px] text-[40px] font-medium leading-[1.04] tracking-[-0.03em] sm:text-[52px] lg:text-[64px]">
+          A living gallery of{" "}
+          <span className="italic">{countPhrase(stats.total)}.</span>
+        </h1>
+        <HeroStats
+          total={stats.total}
+          avg={stats.avg}
+          totalValue={stats.totalValue}
+        />
+      </div>
 
-        <div className="flex flex-wrap items-baseline gap-x-7 gap-y-2 whitespace-nowrap text-[13px] text-muted">
-          <label className="inline-flex items-center gap-[7px]">
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden
+      {/* Lead album — info column beside the drifting cover. */}
+      {lead && (
+        <div className="gutter mt-14 lg:mt-16">
+          <AlbumCard record={lead} featured eyebrow={LEAD_EYEBROWS[sort]} />
+        </div>
+      )}
+
+      {/* Filter / search / sort bar */}
+      <div className="gutter mt-16 lg:mt-20">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-5 border-t border-line pt-7">
+          <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2.5 text-[13.5px]">
+            <button
+              type="button"
+              onClick={() => setFilter("all")}
+              className={pillClass(filter === "all")}
             >
-              <circle cx="11" cy="11" r="7" />
-              <path d="m20 20-3.5-3.5" />
-            </svg>
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search"
-              aria-label="Search artist or title"
-              className="w-24 border-b border-transparent bg-transparent text-ink outline-none transition-[width,border-color] placeholder:text-muted focus:w-44 focus:border-line"
-            />
-          </label>
-          <label className="inline-flex items-baseline gap-1.5">
-            Sorted by —
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value as SortKey)}
-              className="cursor-pointer appearance-none bg-transparent text-ink outline-none"
-            >
-              {SORT_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          </label>
+              All {stats.total}
+            </button>
+            {stats.byGenre.map((g) => (
+              <button
+                key={g.genre}
+                type="button"
+                onClick={() => setFilter(g.genre)}
+                className={pillClass(filter === g.genre)}
+              >
+                {GENRE_LABELS[g.genre]} {g.count}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap items-baseline gap-x-7 gap-y-2 whitespace-nowrap text-[13px] text-muted">
+            <label className="inline-flex items-center gap-[7px]">
+              <MagnifyingGlassIcon size={13} aria-hidden />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search"
+                aria-label="Search artist or title"
+                className="w-24 border-b border-transparent bg-transparent text-ink outline-none transition-[width,border-color] placeholder:text-muted focus:w-44 focus:border-line"
+              />
+            </label>
+            <label className="inline-flex items-baseline gap-1.5">
+              Sorted by
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortKey)}
+                className="cursor-pointer appearance-none bg-transparent text-ink outline-none"
+              >
+                {SORT_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
         </div>
       </div>
 
-      {/* Gallery — lead album hero, then a 3-column grid of the rest */}
-      <div className="gutter mt-14">
-        {lead ? (
-          <>
-            <AlbumCard record={lead} featured eyebrow={LEAD_EYEBROWS[sort]} />
-            {rest.length > 0 && (
-              <div className="mt-20 grid grid-cols-1 gap-y-20 sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-3 lg:gap-x-14">
-                {rest.map((r, i) => (
-                  <AlbumCard key={r.id} record={r} index={i} />
-                ))}
-              </div>
-            )}
-          </>
-        ) : (
+      {/* Gallery grid of everything after the lead */}
+      <div className="gutter mt-12">
+        {rest.length > 0 && (
+          <div className="grid grid-cols-1 gap-y-20 sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-3 lg:gap-x-14">
+            {rest.map((r, i) => (
+              <AlbumCard key={r.id} record={r} index={i} />
+            ))}
+          </div>
+        )}
+        {!lead && (
           <div className="border border-dashed border-line py-24 text-center text-muted">
             {records.length === 0
               ? "No records yet. Sign in as the owner to add your first LP."
@@ -168,14 +210,11 @@ export default function CollectionView({ records }: { records: Record[] }) {
         )}
       </div>
 
-      {/* Stats band — centered, serif numerals over small uppercase labels */}
+      {/* Stats band — the numbers speak for themselves, no kicker needed. */}
       {records.length > 0 && (
         <div className="mt-20 border-t border-line">
           <div className="gutter pb-6 pt-16 text-center lg:pb-10 lg:pt-[72px]">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-muted">
-              By the numbers <span lang="ko">· 통계</span>
-            </p>
-            <div className="mt-11 grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-4">
               <CountUpStat
                 label="Total records"
                 target={stats.total}
@@ -187,8 +226,8 @@ export default function CollectionView({ records }: { records: Record[] }) {
                 format={(n) => n.toFixed(1)}
               />
               <CountUpStat
-                label="On wishlist"
-                target={wishlistCount}
+                label="Genres"
+                target={stats.byGenre.length}
                 format={(n) => String(Math.round(n))}
               />
               <CountUpStat
@@ -200,9 +239,12 @@ export default function CollectionView({ records }: { records: Record[] }) {
             </div>
             <div className="mt-12 flex flex-wrap justify-center gap-x-[22px] gap-y-2.5 text-[13px] text-muted">
               {stats.byGenre.map((g) => (
-                <span key={g.genre} className="inline-flex items-center gap-[7px]">
+                <span
+                  key={g.genre}
+                  className="inline-flex items-center gap-[7px]"
+                >
                   <GenreDot genre={g.genre} size={7} />
-                  {GENRE_LABELS[g.genre]} · {g.count}
+                  {GENRE_LABELS[g.genre]} {g.count}
                 </span>
               ))}
             </div>
@@ -231,7 +273,7 @@ function CountUpStat({
   return (
     <div>
       <p
-        className={`font-display leading-none tabular-nums break-words ${valueClassName}`}
+        className={`font-medium leading-none tracking-[-0.02em] tabular-nums break-words ${valueClassName}`}
       >
         {format(value)}
       </p>

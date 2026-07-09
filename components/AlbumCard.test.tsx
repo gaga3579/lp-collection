@@ -69,17 +69,18 @@ describe("AlbumCard", () => {
     expect(img).toHaveAttribute("src", "https://example.com/cover.jpg");
   });
 
-  it("falls back to a music glyph when there is no cover", () => {
+  it("falls back to a vinyl placeholder when there is no cover", () => {
     renderCard({ cover_url: null });
-    expect(screen.queryByRole("img")).not.toBeInTheDocument();
-    expect(screen.getByText("♪")).toBeInTheDocument(); // ♪
+    expect(screen.queryByAltText(/cover$/)).not.toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "No cover art" })).toBeInTheDocument();
   });
 
-  it("shows the year, or an em dash when missing", () => {
+  it("shows the year when present, and only the genre when missing", () => {
     renderCard();
     expect(screen.getByText("1959")).toBeInTheDocument();
     const { container } = renderCard({ year: null });
-    expect(within(container).getByText("—")).toBeInTheDocument(); // —
+    expect(within(container).queryByText("1959")).not.toBeInTheDocument();
+    expect(within(container).getByText("Jazz")).toBeInTheDocument();
   });
 
   it("shows the KST-formatted created date in featured (hero) mode", () => {
@@ -103,7 +104,7 @@ describe("AlbumCard", () => {
 
   it("renders the hero info column in featured mode", () => {
     renderCard({}, true);
-    // Title is promoted to an <h2>, with the eyebrow and the serif
+    // Title is promoted to an <h2>, with the kicker and the italic
     // "artist, year" line beside the large cover.
     expect(screen.getByRole("heading", { level: 2, name: "Kind of Blue" })).toBeInTheDocument();
     expect(screen.getByText(/Latest addition/)).toBeInTheDocument();

@@ -139,7 +139,7 @@ export default function RecordForm({
           </button>
         </div>
         {searchError && (
-          <p role="alert" className="mt-2 text-sm text-[#b34a3a]">
+          <p role="alert" className="mt-2 text-sm text-accent">
             {searchError}
           </p>
         )}

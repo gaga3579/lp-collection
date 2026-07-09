@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { VinylRecordIcon } from "@phosphor-icons/react/dist/ssr";
 import Nav from "@/components/Nav";
 import GenreDot from "@/components/GenreDot";
+import ShelfChart from "@/components/ShelfChart";
 import StarRating from "@/components/StarRating";
-import { GENRES, GENRE_COLORS, GENRE_LABELS, type Genre } from "@/lib/types";
+import { GENRES, GENRE_LABELS } from "@/lib/types";
 import { getRecords } from "@/lib/records";
 
 // Always render at request time using runtime env vars.
@@ -11,24 +13,11 @@ export const dynamic = "force-dynamic";
 export default async function StatsPage() {
   const records = await getRecords();
 
-  // Genre breakdown
   const genreCounts = GENRES.map((g) => ({
     genre: g,
     count: records.filter((r) => r.genre === g).length,
   })).filter((g) => g.count > 0);
-  const maxGenre = Math.max(1, ...genreCounts.map((g) => g.count));
 
-  // By decade
-  const decadeMap = new Map<number, number>();
-  for (const r of records) {
-    if (r.year == null) continue;
-    const decade = Math.floor(r.year / 10) * 10;
-    decadeMap.set(decade, (decadeMap.get(decade) ?? 0) + 1);
-  }
-  const decades = [...decadeMap.entries()].sort((a, b) => a[0] - b[0]);
-  const maxDecade = Math.max(1, ...decades.map(([, c]) => c));
-
-  // Top rated
   const topRated = [...records]
     .filter((r) => r.rating != null)
     .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
@@ -37,97 +26,81 @@ export default async function StatsPage() {
   return (
     <>
       <Nav />
-      <main className="mx-auto max-w-5xl px-6 py-12">
-        <h1 className="font-display text-5xl">Collection Statistics</h1>
-        <p className="mt-2 text-muted">
-          A look across {records.length} records.
-        </p>
+      <main className="pb-24">
+        <div className="gutter pt-12 lg:pt-16">
+          <h1 className="text-[36px] font-medium leading-[1.05] tracking-[-0.03em] sm:text-[44px]">
+            The shelf, by the numbers.
+          </h1>
+          <p className="mt-4 text-sm text-muted">
+            {records.length} records, one spine each, grouped by decade.
+          </p>
+        </div>
 
         {records.length === 0 ? (
-          <div className="mt-12 rounded-lg border border-dashed border-line bg-card py-20 text-center text-muted">
-            No data yet.
+          <div className="gutter mt-14">
+            <div className="border border-dashed border-line py-24 text-center text-muted">
+              No data yet.
+            </div>
           </div>
         ) : (
-          <div className="mt-12 grid gap-12 md:grid-cols-2">
-            {/* Genre bar chart */}
-            <section>
-              <h2 className="font-display text-2xl">By genre</h2>
-              <ul className="mt-6 space-y-3">
+          <>
+            {/* The shelf — each spine is a record, colored by genre. */}
+            <div className="gutter mt-14 lg:mt-16">
+              <ShelfChart records={records} />
+              <div className="mt-9 flex flex-wrap gap-x-[22px] gap-y-2.5 text-[13px] text-muted">
                 {genreCounts.map((g) => (
-                  <li key={g.genre}>
-                    <div className="mb-1 flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-2">
-                        <GenreDot genre={g.genre} />
-                        {GENRE_LABELS[g.genre]}
-                      </span>
-                      <span className="text-muted">{g.count}</span>
-                    </div>
-                    <div className="h-2.5 overflow-hidden rounded-full bg-line">
-                      <div
-                        className="h-full rounded-full"
-                        style={{
-                          width: `${(g.count / maxGenre) * 100}%`,
-                          backgroundColor: GENRE_COLORS[g.genre as Genre],
-                        }}
-                      />
-                    </div>
-                  </li>
+                  <span
+                    key={g.genre}
+                    className="inline-flex items-center gap-[7px]"
+                  >
+                    <GenreDot genre={g.genre} size={7} />
+                    {GENRE_LABELS[g.genre]} {g.count}
+                  </span>
                 ))}
-              </ul>
-            </section>
+              </div>
+            </div>
 
-            {/* By decade */}
-            <section>
-              <h2 className="font-display text-2xl">By decade</h2>
-              {decades.length === 0 ? (
-                <p className="mt-6 text-muted">No years recorded.</p>
-              ) : (
-                <div className="mt-6 flex h-48 items-end gap-3">
-                  {decades.map(([decade, count]) => (
-                    <div
-                      key={decade}
-                      className="flex flex-1 flex-col items-center gap-2"
-                    >
-                      <span className="text-sm text-muted">{count}</span>
-                      {/* Pixel height: a % here resolves against an auto-height
-                          flex column and collapses to the 4px floor. */}
-                      <div
-                        className="w-full rounded-t bg-ink"
-                        style={{
-                          height: (count / maxDecade) * 140,
-                          minHeight: 4,
-                        }}
-                      />
-                      <span className="text-xs text-muted">{decade}s</span>
-                    </div>
+            {/* Top rated — a short row of covers, not a table. */}
+            {topRated.length > 0 && (
+              <div className="gutter mt-20 border-t border-line pt-14 lg:mt-24">
+                <h2 className="text-2xl font-medium tracking-[-0.02em]">
+                  Top rated
+                </h2>
+                <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-5 lg:gap-x-8">
+                  {topRated.map((r) => (
+                    <Link key={r.id} href={`/record/${r.id}`} className="group">
+                      <div className="relative aspect-square rounded-[2px] shadow-cover transition-[translate,box-shadow] duration-300 ease-out group-hover:-translate-y-1.5 group-hover:shadow-cover-hover">
+                        {r.cover_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element -- arbitrary external album-art hosts
+                          <img
+                            src={r.cover_url}
+                            alt={`${r.title} cover`}
+                            className="absolute inset-0 h-full w-full rounded-[2px] object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div
+                            role="img"
+                            aria-label="No cover art"
+                            className="absolute inset-0 grid place-items-center rounded-[2px] bg-line text-muted"
+                          >
+                            <VinylRecordIcon size={36} weight="thin" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="mt-3.5 truncate text-[12.5px] text-muted">
+                        {r.artist}
+                      </p>
+                      <p className="mt-1 break-words text-[15px] font-semibold leading-snug line-clamp-2">
+                        {r.title}
+                      </p>
+                      <StarRating value={r.rating} size={11} className="mt-2" />
+                    </Link>
                   ))}
                 </div>
-              )}
-            </section>
-
-            {/* Top rated */}
-            <section className="md:col-span-2">
-              <h2 className="font-display text-2xl">Top rated</h2>
-              <ul className="mt-6 divide-y divide-line rounded-lg border border-line bg-card">
-                {topRated.map((r) => (
-                  <li key={r.id}>
-                    <Link
-                      href={`/record/${r.id}`}
-                      className="flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-canvas"
-                    >
-                      <span>
-                        <span className="text-sm text-muted">{r.artist}</span>
-                        <span className="block font-display text-lg leading-tight">
-                          {r.title}
-                        </span>
-                      </span>
-                      <StarRating value={r.rating} />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </div>
+              </div>
+            )}
+          </>
         )}
       </main>
     </>

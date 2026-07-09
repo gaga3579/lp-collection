@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatKRW } from "./format";
+import { formatDuration, formatKRW } from "./format";
 
 // Smoke test proving the Vitest setup works. Per-directory suites are added by
 // the analysis/test workflow; this anchors the toolchain.
@@ -43,5 +43,32 @@ describe("formatKRW (extended)", () => {
     expect(formatKRW(-1000.5)).toBe("₩ -1,000");
     // Math.round(-1000.6) === -1001
     expect(formatKRW(-1000.6)).toBe("₩ -1,001");
+  });
+});
+
+describe("formatDuration", () => {
+  it("formats a whole number of minutes", () => {
+    expect(formatDuration(180000)).toBe("3:00");
+  });
+
+  it("pads single-digit seconds", () => {
+    expect(formatDuration(61000)).toBe("1:01");
+  });
+
+  it("does not pad the minutes portion", () => {
+    expect(formatDuration(561000)).toBe("9:21");
+  });
+
+  it("rounds to the nearest second", () => {
+    expect(formatDuration(59600)).toBe("1:00");
+    expect(formatDuration(59400)).toBe("0:59");
+  });
+
+  it("formats durations under a minute", () => {
+    expect(formatDuration(5000)).toBe("0:05");
+  });
+
+  it("formats durations over an hour without an hours component", () => {
+    expect(formatDuration(3661000)).toBe("61:01");
   });
 });

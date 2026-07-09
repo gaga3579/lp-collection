@@ -1,17 +1,14 @@
 import type { Metadata } from "next";
-import { Instrument_Sans, Instrument_Serif } from "next/font/google";
+import { Instrument_Sans } from "next/font/google";
+// Dynamic-subset Pretendard: ~100 unicode-range slices so Korean glyphs load
+// on demand instead of one multi-megabyte file. Latin stays Instrument Sans.
+import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 import "./globals.css";
 
 const instrumentSans = Instrument_Sans({
   variable: "--font-instrument-sans",
   subsets: ["latin"],
-});
-
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
-  weight: "400",
   style: ["normal", "italic"],
-  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -25,10 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${instrumentSans.variable} ${instrumentSerif.variable} h-full`}
-    >
+    <html lang="en" className={`${instrumentSans.variable} h-full`}>
       <body className="min-h-full">{children}</body>
     </html>
   );

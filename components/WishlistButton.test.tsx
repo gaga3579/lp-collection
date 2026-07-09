@@ -44,15 +44,17 @@ describe("WishlistButton", () => {
     expect(toggle).toHaveBeenCalledWith("rec-42");
   });
 
-  it("fills the heart red when active", () => {
+  it("colors the heart with the accent token when active", () => {
     wishlistIds = ["rec-1"];
-    const { container } = render(<WishlistButton id="rec-1" />);
-    expect(container.querySelector("svg")?.getAttribute("fill")).toBe("#b34a3a");
+    render(<WishlistButton id="rec-1" />);
+    expect(screen.getByRole("button")).toHaveClass("text-accent");
   });
 
-  it("leaves the heart unfilled when inactive", () => {
-    const { container } = render(<WishlistButton id="rec-1" />);
-    expect(container.querySelector("svg")?.getAttribute("fill")).toBe("none");
+  it("keeps the heart in ink when inactive", () => {
+    render(<WishlistButton id="rec-1" />);
+    const btn = screen.getByRole("button");
+    expect(btn).not.toHaveClass("text-accent");
+    expect(btn).toHaveClass("text-ink");
   });
 
   it("honours a custom icon size", () => {

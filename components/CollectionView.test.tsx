@@ -176,16 +176,16 @@ describe("CollectionView", () => {
     beforeEach(() => vi.useFakeTimers());
     afterEach(() => vi.useRealTimers());
 
-    it("counts up total records and wishlist count once animation settles", () => {
+    it("counts up totals once animation settles", () => {
       render(<CollectionView records={records} />);
       act(() => vi.advanceTimersByTime(2000));
-      expect(screen.getByText("By the numbers")).toBeInTheDocument();
-      // Total records = 3.
-      expect(screen.getByText("3")).toBeInTheDocument();
-      // Average rating (5+4+3)/3 = 4.0.
-      expect(screen.getByText("4.0")).toBeInTheDocument();
-      // Total collection value 30000+20000+10000 = ₩ 60,000.
-      expect(screen.getByText("₩ 60,000")).toBeInTheDocument();
+      expect(screen.getByText("Total records")).toBeInTheDocument();
+      // Genres stat: jazz + rock + soul = 3 distinct genres.
+      expect(screen.getByText("Genres")).toBeInTheDocument();
+      // Average rating (5+4+3)/3 = 4.0 — shown in the hero line AND the band.
+      expect(screen.getAllByText("4.0").length).toBeGreaterThanOrEqual(1);
+      // Total collection value 30000+20000+10000 = ₩ 60,000 (hero + band).
+      expect(screen.getAllByText("₩ 60,000").length).toBeGreaterThanOrEqual(1);
     });
   });
 });

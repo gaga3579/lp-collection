@@ -2,21 +2,18 @@ import { describe, expect, it, vi } from "vitest";
 import type { ReactElement } from "react";
 
 // next/font/google can't run under jsdom (it requires the Next build-time font
-// loader), so stub the two loaders this layout uses. Each returns a className /
+// loader), so stub the loader this layout uses. It returns a className /
 // CSS-variable handle, mirroring the real loader's return shape.
 vi.mock("next/font/google", () => ({
   Instrument_Sans: () => ({
     variable: "--font-instrument-sans",
     className: "font-instrument-sans",
   }),
-  Instrument_Serif: () => ({
-    variable: "--font-instrument-serif",
-    className: "font-instrument-serif",
-  }),
 }));
 
-// globals.css is a Tailwind entrypoint; ignore it in the test environment.
+// CSS entrypoints (Tailwind + Pretendard); ignore them in the test environment.
 vi.mock("./globals.css", () => ({}));
+vi.mock("pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css", () => ({}));
 
 import RootLayout, { metadata } from "./layout";
 
@@ -46,7 +43,6 @@ describe("app/layout", () => {
       children: ReactElement<{ className: string }>;
     }>;
     expect(tree.props.className).toContain("--font-instrument-sans");
-    expect(tree.props.className).toContain("--font-instrument-serif");
     expect(tree.props.className).toContain("h-full");
     expect(tree.props.children.props.className).toContain("min-h-full");
   });

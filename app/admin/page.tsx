@@ -99,7 +99,7 @@ export default function AdminPage() {
     <>
       <Nav />
       <main className="mx-auto max-w-4xl px-6 py-12">
-        <h1 className="font-display text-5xl">Admin</h1>
+        <h1 className="text-4xl font-medium tracking-[-0.03em]">Admin</h1>
 
         {!supabase && (
           <Notice>
@@ -166,7 +166,7 @@ export default function AdminPage() {
 
             {showForm && (
               <div className="rounded-lg border border-line bg-card p-6">
-                <h2 className="mb-6 font-display text-2xl">
+                <h2 className="mb-6 text-2xl font-medium tracking-[-0.02em]">
                   {editing ? "Edit record" : "New record"}
                 </h2>
                 <RecordForm
@@ -212,7 +212,7 @@ export default function AdminPage() {
                       <div className="min-w-0 flex-1">
                         <Link
                           href={`/record/${r.id}`}
-                          className="block truncate font-display text-lg leading-tight hover:underline"
+                          className="block truncate text-[16px] font-semibold leading-tight hover:underline"
                         >
                           {r.title}
                         </Link>
@@ -234,7 +234,7 @@ export default function AdminPage() {
                         </button>
                         <button
                           onClick={() => handleDelete(r.id)}
-                          className="rounded-md border border-line px-3 py-1.5 text-sm text-[#b34a3a] transition hover:border-[#b34a3a]"
+                          className="rounded-md border border-line px-3 py-1.5 text-sm text-accent transition hover:border-accent"
                         >
                           Delete
                         </button>
@@ -263,7 +263,7 @@ function Notice({
       role={tone === "error" ? "alert" : undefined}
       className={`mt-8 rounded-lg border px-5 py-4 text-sm ${
         tone === "error"
-          ? "border-[#b34a3a]/40 bg-[#b34a3a]/5 text-[#b34a3a]"
+          ? "border-accent/40 bg-accent/5 text-accent"
           : "border-line bg-card text-muted"
       }`}
     >

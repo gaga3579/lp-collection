@@ -3,8 +3,8 @@ import { render, screen } from "@testing-library/react";
 import StarRating from "./StarRating";
 
 function filledCount(container: HTMLElement): number {
-  // A star is "filled" when its svg has fill set to the ink color.
-  return container.querySelectorAll('svg[fill="#141412"]').length;
+  // A star is "filled" when it renders the fill-weight glyph (data-filled).
+  return container.querySelectorAll('svg[data-filled="true"]').length;
 }
 
 describe("StarRating", () => {

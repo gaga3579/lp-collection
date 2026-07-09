@@ -1,34 +1,56 @@
 @import "tailwindcss";
 
 /*
-  Modern Gallery palette — near-white canvas, warm-black ink, greyed-warm
-  muted text, hairline borders. Covers float on layered soft shadows.
-  Instrument Sans for body/UI, Instrument Serif for display accents.
+  Listening Room palette — one warm-neutral system with a light (daylight) and
+  dark (listening room) mode, switched on prefers-color-scheme. Terracotta is
+  the single accent, shared by the wishlist heart, errors, and focus rings.
+  Instrument Sans carries Latin text; Pretendard carries Korean.
 */
 @theme {
   --color-canvas: #fcfcfb;
   --color-card: #ffffff;
   --color-ink: #141412;
-  --color-muted: #8c8a84;
+  --color-muted: #6f6d66;
   --color-line: #eceae4;
+  --color-accent: #b34a3a;
 
-  --font-serif: var(--font-instrument-serif), Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-instrument-sans), "Pretendard Variable", Pretendard,
+    ui-sans-serif, system-ui, sans-serif;
 
-  /* Album-cover shadows: resting + deepened hover pair, grid and hero (lg) sizes. */
-  --shadow-cover: 0 24px 55px -26px rgba(20, 20, 18, 0.35),
+  /* Album-cover shadows: resting + deepened hover pair, grid and hero (lg)
+     sizes. --cover-ring is a hairline rim light that only shows in dark mode,
+     where shadows alone can't separate a cover from the canvas. */
+  --cover-ring: 0 0 0 0 transparent;
+  --shadow-cover: var(--cover-ring), 0 24px 55px -26px rgba(20, 20, 18, 0.35),
     0 6px 18px -10px rgba(20, 20, 18, 0.15);
-  --shadow-cover-hover: 0 32px 65px -24px rgba(20, 20, 18, 0.45),
+  --shadow-cover-hover: var(--cover-ring),
+    0 32px 65px -24px rgba(20, 20, 18, 0.45),
     0 10px 24px -12px rgba(20, 20, 18, 0.2);
-  --shadow-cover-lg: 0 32px 70px -28px rgba(20, 20, 18, 0.38),
+  --shadow-cover-lg: var(--cover-ring),
+    0 32px 70px -28px rgba(20, 20, 18, 0.38),
     0 8px 22px -12px rgba(20, 20, 18, 0.18);
-  --shadow-cover-lg-hover: 0 44px 90px -30px rgba(20, 20, 18, 0.48),
+  --shadow-cover-lg-hover: var(--cover-ring),
+    0 44px 90px -30px rgba(20, 20, 18, 0.48),
     0 12px 28px -14px rgba(20, 20, 18, 0.22);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-canvas: #131311;
+    --color-card: #1c1c19;
+    --color-ink: #f0efe9;
+    --color-muted: #a3a099;
+    --color-line: #2a2a26;
+    --color-accent: #d0705f;
+
+    --cover-ring: inset 0 0 0 1px rgba(255, 255, 255, 0.09);
+  }
 }
 
 html {
   background: var(--color-canvas);
   color: var(--color-ink);
+  color-scheme: light dark;
 }
 
 body {
@@ -38,15 +60,14 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.font-display {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  letter-spacing: -0.01em;
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 /*
   Shared page gutter — every section aligns to it. 120px on the 1440px design
-  frame, scaling down for tablet/mobile (the handoff was desktop-only).
+  frame, scaling down for tablet/mobile.
 */
 .gutter {
   padding-inline: 1.5rem;
@@ -59,5 +80,73 @@ body {
 @media (min-width: 80rem) {
   .gutter {
     padding-inline: 7.5rem;
+  }
+}
+
+/*
+  Vinyl disc — the signature element. A grooved disc sits behind every sleeve
+  and slides out on hover; its label wears the record's genre color. Peek
+  distances stay under the grid gutters so discs never cross into a neighbor.
+*/
+.vinyl-disc {
+  position: absolute;
+  inset-block: 2%;
+  right: 0;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background: repeating-radial-gradient(
+      circle at center,
+      rgba(255, 255, 255, 0.045) 0 1px,
+      transparent 1px 4px
+    ),
+    radial-gradient(circle at 30% 25%, #26241f 0%, #191814 55%, #100f0d 100%);
+  box-shadow: 4px 0 14px -6px rgba(0, 0, 0, 0.45);
+  translate: 3% 0;
+  transition: translate 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.group:hover .vinyl-disc {
+  translate: 10% 0;
+}
+.vinyl-disc-out {
+  /* Record-detail pose: the disc rests half out of the sleeve, no motion. */
+  translate: 0 0;
+  transition: none;
+}
+.vinyl-label {
+  position: absolute;
+  inset: 33%;
+  border-radius: 9999px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+.vinyl-label::after {
+  content: "";
+  position: absolute;
+  inset: 44%;
+  border-radius: 9999px;
+  background: #100f0d;
+}
+@media (prefers-reduced-motion: reduce) {
+  .vinyl-disc {
+    transition: none;
+  }
+}
+
+/*
+  Hero cover drift — the lead cover eases 40px down across the first 500px of
+  scroll (CSS scroll-driven animation; browsers without it get a static cover).
+  Capped so the cover can never sink into the section below.
+*/
+@keyframes hero-drift {
+  to {
+    translate: 0 40px;
+  }
+}
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-drift {
+      animation: hero-drift linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0px 500px;
+    }
   }
 }
