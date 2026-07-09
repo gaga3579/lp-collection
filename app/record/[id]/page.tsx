@@ -4,7 +4,6 @@ import { VinylRecordIcon } from "@phosphor-icons/react/dist/ssr";
 import Nav from "@/components/Nav";
 import GenreDot from "@/components/GenreDot";
 import StarRating from "@/components/StarRating";
-import TrackList from "@/components/TrackList";
 import VinylDisc from "@/components/VinylDisc";
 import WishlistButton from "@/components/WishlistButton";
 import { CONDITIONS, GENRE_COLORS, GENRE_LABELS } from "@/lib/types";
@@ -97,8 +96,6 @@ export default async function RecordPage({
                 <span className="text-sm text-muted">{record.rating}/5</span>
               )}
             </div>
-
-            <TrackList artist={record.artist} title={record.title} />
 
             {record.notes && (
               <p className="mt-9 border-t border-line pt-8 text-[16.5px] leading-relaxed">
