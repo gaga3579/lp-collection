@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import StarRatingInput from "@/components/admin/StarRatingInput";
 import {
   CONDITIONS,
   GENRES,
@@ -198,18 +199,15 @@ export default function RecordForm({
           options={GENRES.map((g) => ({ value: g, label: GENRE_LABELS[g] }))}
           onChange={(v) => set("genre", v as Genre)}
         />
-        <SelectField
-          label="Rating"
-          value={values.rating != null ? String(values.rating) : ""}
-          options={[
-            { value: "", label: "Unrated" },
-            ...[1, 2, 3, 4, 5].map((n) => ({
-              value: String(n),
-              label: `${n} ★`,
-            })),
-          ]}
-          onChange={(v) => set("rating", v ? Number(v) : null)}
-        />
+        <div>
+          <span className="text-xs uppercase tracking-wide text-muted">
+            Rating
+          </span>
+          <StarRatingInput
+            value={values.rating}
+            onChange={(v) => set("rating", v)}
+          />
+        </div>
         <SelectField
           label="Condition"
           value={values.condition ?? ""}

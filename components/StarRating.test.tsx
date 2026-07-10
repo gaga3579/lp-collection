@@ -7,6 +7,10 @@ function filledCount(container: HTMLElement): number {
   return container.querySelectorAll('svg[data-filled="true"]').length;
 }
 
+function halfCount(container: HTMLElement): number {
+  return container.querySelectorAll('svg[data-half="true"]').length;
+}
+
 describe("StarRating", () => {
   it("always renders five stars", () => {
     const { container } = render(<StarRating value={3} />);
@@ -32,6 +36,29 @@ describe("StarRating", () => {
   it("fills all five stars at value 5", () => {
     const { container } = render(<StarRating value={5} />);
     expect(filledCount(container)).toBe(5);
+  });
+
+  it("renders a half star for a .5 value", () => {
+    const { container } = render(<StarRating value={3.5} />);
+    expect(container.querySelectorAll("svg")).toHaveLength(5);
+    expect(filledCount(container)).toBe(3);
+    expect(halfCount(container)).toBe(1);
+  });
+
+  it("renders only a half star at value 0.5", () => {
+    const { container } = render(<StarRating value={0.5} />);
+    expect(filledCount(container)).toBe(0);
+    expect(halfCount(container)).toBe(1);
+  });
+
+  it("renders no half star for whole values", () => {
+    const { container } = render(<StarRating value={4} />);
+    expect(halfCount(container)).toBe(0);
+  });
+
+  it("exposes the half-star value in the accessible label", () => {
+    render(<StarRating value={2.5} />);
+    expect(screen.getByLabelText("2.5 out of 5 stars")).toBeInTheDocument();
   });
 
   it("exposes an accessible 'N out of 5 stars' label", () => {

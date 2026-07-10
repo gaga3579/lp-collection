@@ -47,7 +47,7 @@ describe("schema.sql — columns", () => {
     ["title", /title\s+text\b/],
     ["year", /year\s+integer\b/],
     ["genre", /genre\s+text\b/],
-    ["rating", /rating\s+integer\b/],
+    ["rating", /rating\s+numeric\b/],
     ["notes", /notes\s+text\b/],
     ["cover_url", /cover_url\s+text\b/],
     ["purchase_price", /purchase_price\s+numeric\b/],
@@ -142,8 +142,10 @@ describe("schema.sql — keys and defaults", () => {
 });
 
 describe("schema.sql — check constraints", () => {
-  it("constrains rating to the 1..5 range", () => {
-    expect(normalized).toMatch(/rating\s+integer\s+check\s*\(\s*rating\s+between\s+1\s+and\s+5\s*\)/);
+  it("constrains rating to 0.5..5 in half-star steps", () => {
+    expect(normalized).toMatch(
+      /rating\s+numeric\s+check\s*\(\s*rating\s+between\s+0\.5\s+and\s+5\s+and\s+mod\s*\(\s*rating\s*\*\s*2\s*,\s*1\s*\)\s*=\s*0\s*\)/,
+    );
   });
 
   it("constrains condition to the four allowed grades", () => {

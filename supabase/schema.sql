@@ -9,7 +9,8 @@ create table if not exists public.records (
   -- Free text, but the app uses: jazz, rock, soul, rnb, rap, pop,
   -- electronic, classical, other.
   genre text not null default 'other',
-  rating integer check (rating between 1 and 5),
+  -- Half-star steps allowed: 0.5, 1, 1.5, ... 5.
+  rating numeric check (rating between 0.5 and 5 and mod(rating * 2, 1) = 0),
   notes text,
   cover_url text,
   purchase_price numeric,

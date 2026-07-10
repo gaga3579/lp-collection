@@ -3,16 +3,18 @@ import type { Record } from "@/lib/types";
 
 /**
  * Postgres `numeric` columns are serialized as JSON *strings* by PostgREST to
- * preserve arbitrary precision, so `purchase_price` arrives as e.g. "12500" at
- * runtime even though the type declares `number | null`. Coerce it once here so
- * every consumer gets a real number — otherwise `sum + price` silently does
- * string concatenation and totals come out as garbage like "0125003400".
+ * preserve arbitrary precision, so `purchase_price` and `rating` arrive as e.g.
+ * "12500" / "3.5" at runtime even though the type declares `number | null`.
+ * Coerce them once here so every consumer gets a real number — otherwise
+ * `sum + price` silently does string concatenation and totals come out as
+ * garbage like "0125003400".
  */
 function normalize(row: Record): Record {
   return {
     ...row,
     purchase_price:
       row.purchase_price == null ? null : Number(row.purchase_price),
+    rating: row.rating == null ? null : Number(row.rating),
   };
 }
 

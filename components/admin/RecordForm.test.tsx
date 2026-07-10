@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { Record, RecordInput } from "@/lib/types";
 import RecordForm from "./RecordForm";
@@ -65,18 +65,47 @@ describe("RecordForm", () => {
     expect(values.genre).toBe("other"); // default
   });
 
-  it("converts the rating select to a number (and empty to null)", async () => {
+  it("submits a whole-star rating set on the star slider", async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn<(v: RecordInput) => void>();
     render(<RecordForm onSubmit={onSubmit} />);
 
     await user.type(getInputByLabel("Artist"), "A");
     await user.type(getInputByLabel("Title"), "B");
-    const ratingSelect = screen.getByText("Rating").parentElement as HTMLElement;
-    await user.selectOptions(within(ratingSelect).getByRole("combobox"), "4");
+    const slider = screen.getByRole("slider", { name: "Rating" });
+    for (let i = 0; i < 8; i++) fireEvent.keyDown(slider, { key: "ArrowRight" });
     await user.click(screen.getByRole("button", { name: "Add record" }));
 
     expect(onSubmit.mock.calls[0][0].rating).toBe(4);
+  });
+
+  it("submits half-star ratings as numbers", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn<(v: RecordInput) => void>();
+    render(<RecordForm onSubmit={onSubmit} />);
+
+    await user.type(getInputByLabel("Artist"), "A");
+    await user.type(getInputByLabel("Title"), "B");
+    const slider = screen.getByRole("slider", { name: "Rating" });
+    for (let i = 0; i < 7; i++) fireEvent.keyDown(slider, { key: "ArrowRight" });
+    await user.click(screen.getByRole("button", { name: "Add record" }));
+
+    expect(onSubmit.mock.calls[0][0].rating).toBe(3.5);
+  });
+
+  it("clears the rating back to null", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn<(v: RecordInput) => void>();
+    render(<RecordForm onSubmit={onSubmit} />);
+
+    await user.type(getInputByLabel("Artist"), "A");
+    await user.type(getInputByLabel("Title"), "B");
+    const slider = screen.getByRole("slider", { name: "Rating" });
+    fireEvent.keyDown(slider, { key: "End" });
+    fireEvent.keyDown(slider, { key: "Delete" });
+    await user.click(screen.getByRole("button", { name: "Add record" }));
+
+    expect(onSubmit.mock.calls[0][0].rating).toBeNull();
   });
 
   it("invokes onCancel when the Cancel button is clicked", async () => {
